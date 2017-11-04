@@ -32,7 +32,6 @@ public class Arabico implements ConverterArabico{
  
     private String filtrarRomano(int tamanhoString, String algarismoRomano ){
         adicionarValores();
-        ;
         
         contList = new int[lista.size()];
         
