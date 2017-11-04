@@ -41,26 +41,31 @@ public class Romano implements ConverterRomano{
         //Letra
         char algMaior,algMedio, algMenor; 
         //Numero
-        int vlrMaior, vlrMedio, vlrMenor, contDigitos;
-
-        int numDigitos = (int) Math.log10(algarismoAlgebrico)+1;
-        contDigitos = numDigitos;
-        // log10 para pegar os digitos, o Casting é porque o valor é Double
-        int quociente;
-        int potencia; 
+        int vlrMaior, vlrMedio, vlrMenor;
+        int contDigitos;
         
+        //Por acreditar que tem algo de errado misturar log10 com pow então
+        
+        int numDigitos = Integer.toString(algarismoAlgebrico).length();
+
+        contDigitos = 1; //Não da pra alterar a lógica de potencia por contador de digitos
+        // log10 para pegar os digitos, o Casting é porque o valor é Double
+        int quociente, potencia; int resto;
+
         
         i=0;
-        while(i < numDigitos){ 
-            potencia = (int) Math.pow(10, numDigitos);
-            
-            int resto = algarismoAlgebrico%contDigitos;
+        while(i <= numDigitos && algarismoAlgebrico !=0){ 
+    
+            potencia = (int) Math.pow(10, contDigitos);
+
+            resto = algarismoAlgebrico%potencia;
             //reinicia a lista depois de ter sido percorrida
             iLista = lista.size()-1;
-            
+            boolean sairLista = false;
             //Varre a lista com algoritmos romanos para comparar
             int j=0;
-            while(iLista>j){
+            while(iLista>j && sairLista == false ){ // se não for igual não está saindo do looping, adicionar pra ver o que acontece
+               
                 algMaior = lista.get(j+2).literalRomano.charAt(0);
                 algMedio = lista.get(j+1).literalRomano.charAt(0);
                 algMenor = lista.get(j).literalRomano.charAt(0);
@@ -68,42 +73,49 @@ public class Romano implements ConverterRomano{
                 vlrMedio = lista.get(j+1).valorCorrespondente;
                 vlrMenor = lista.get(j).valorCorrespondente;
             
-                if(resto <= vlrMedio-(2*vlrMenor)){
+                if(resto==0 && resto!= vlrMaior){
+                    sairLista=true; 
+                }else if(resto <= vlrMedio-(2*vlrMenor)){
                     //Trata de ex: (1 a 3)
                     quociente = resto/vlrMenor;
                     adicionarRepetidos(quociente, algMenor);
-                    iLista= j;
+                    sairLista=true;
                 } else if(resto > vlrMedio & 
                     resto < vlrMaior-vlrMenor){
                     //Trata de ex: (6 a 8)
                     quociente = (resto-vlrMedio)/vlrMenor;
                     adicionarRepetidos(quociente, algMenor);
                     sb.append(algMedio);
-                    iLista= j;
+                    sairLista=true;
                 } else if (resto == vlrMedio-vlrMenor){
                     //Trata de ex:4
                     sb.append(algMedio);
                     sb.append(algMenor);
-                    iLista= j;
+                    sairLista=true;
                 } else if (resto == vlrMedio){
                     //Trata de ex:5
                     sb.append(algMedio);
-                    iLista= j;
+                    sairLista=true;
                 } else if(resto == (vlrMaior-vlrMenor)) {
                     //Trata de ex: 9
                     sb.append(algMaior);
                     sb.append(algMenor);
-                    iLista= j;
+                    sairLista=true;
                 } else if(resto == vlrMaior){
                     //Trata de ex: 10
                     sb.append(algMaior);
-                    i++;
-                    iLista= j;
+                    i+=2;
+                    sairLista=true;
+                } else if (j+2==iLista){
+                    //como não tem casal do milhar completa é uma alternativa
+                    quociente = algarismoAlgebrico/vlrMaior;
+                    adicionarRepetidos(quociente, algMaior);
                 }
-                //iLista = iLista + 2;//Se vai ao contrário então é descrescente?
-                j=+2;
+                //iLista = iLista + 2; se quem é o iterador é o J não tem porque mexer no iLista
+                j+=2; // Caso não combine com nenhum valor desta casa decimal
             }   
-            i++;    contDigitos++;
+            i++;    contDigitos++; 
+            algarismoAlgebrico -= resto;//Testar pra ver se é isso mesmo
         }  
         romanoConvertido = sb.reverse().toString();
         
